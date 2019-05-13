@@ -1,14 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { spyOnClass } from 'jasmine-es6-spies'
 import { HomesComponent } from './homes.component';
+import { DataService } from '../../services/data.service';
+import {of} from 'rxjs';
 
 describe('HomesComponent', () => {
   let component: HomesComponent;
   let fixture: ComponentFixture<HomesComponent>;
+  let dataService: jasmine.SpyObj<DataService>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ HomesComponent ]
+      declarations: [ HomesComponent ],
+      providers: [
+        {provide: DataService, useFactory: ()=>spyOnClass(DataService)}
+      ]
     })
     .compileComponents();
   }));
@@ -16,9 +22,31 @@ describe('HomesComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(HomesComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+
   });
 
+  beforeEach(()=>{
+    dataService = TestBed.get(DataService);
+
+    dataService.getHomes$.and.returnValue(of([
+      {
+        title: 'Home 1',
+        image: 'assets/listing.png',
+        location: 'New York'
+      },
+      {
+        title: 'Home 2',
+        image: 'assets/listing.png',
+        location: 'Boston'
+      },
+      {
+        title: 'Home 3',
+        image: 'assets/listing.png',
+        location: 'Chicago'
+      }
+    ]));
+    fixture.detectChanges();
+  })
   it('should show homes', () => {
     expect(fixture.nativeElement.querySelectorAll('[data-test="home"]').length).toBe(3);
   });
